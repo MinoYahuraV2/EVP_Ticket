@@ -1,0 +1,117 @@
+1.SetUp
+(ติดตั้ง)
+เข้า Path Project >
+
+py -3.13 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip check
+
+
+(เปิด Chrome เพื่อรันแบบ Parallel)
+
+	& "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\RobotChromeprofile_0"
+
+	& "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9223 --user-data-dir="C:\RobotChromeprofile_1"
+
+	& "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9224 --user-data-dir="C:\RobotChromeprofile_2"
+
+	& "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9225 --user-data-dir="C:\RobotChromeprofile_3"
+
+
+2.Run
+
+python -m robot TC01.Register.robot
+
+python -m pabot.pabot --processes 2 --testlevelsplit --command python -m robot --end-command TC02_Buyticket.robot
+
+python -m pabot.pabot --processes 4 --testlevelsplit --command python -m robot --end-command TC03_Price_check.robot
+
+python -m pabot.pabot --processes 4 --testlevelsplit --command python -m robot --end-command TC04_BuyExpiredTicket.robot
+
+python -m robot TC05_SoldOut.robot
+
+
+
+3.Ai Report 
+
+	โหลด 
+	1.KoboldCpp  https://github.com/LostRuins/koboldcpp/releases
+	2.เปิด https://huggingface.co/ggml-org/Qwen2.5-VL-7B-Instruct-GGUF/tree/main
+		โหลด  1. mmproj-Qwen2.5-VL-7B-Instruct-Q8_0.gguf
+		      2. Qwen2.5-VL-7B-Instruct-Q4_K_M.gguf
+	3.เปิด KoboldCpp 
+		Config ตามรูปใน Folder - ConfigKoboldCpp
+
+	กด Save Config > Launch
+
+
+
+ส่วนที่เรียกให้ Ai วิเคราะห์ Log Error (ติดตั้ง KoboldCpp)
+	-เปิด KoboldCpp กด LoadConfig เลือกFile (AI-Models) และกด Lunch
+
+
+	1.ถ้าเป็น การรันที่อยู่บน Path testcases/parallel ใช้คำสั่ง
+
+      python ../ai_test_report.py --output-xml output.xml --report ai_report.html
+
+	2.ถ้าเป็น การรันที่อยู่บน Path testcases ใช้คำสั่ง
+
+  	  python ai_test_report.py --output-xml output.xml --report ai_report.html
+
+
+
+4.Hammer Band 50th Hit The World (TC06 / TC07)
+
+	งาน: https://eventpass-ticket-uat.eventpass.biz/event-detail/UAT-Hammer-Band-50th-Hit-The-World
+	เทสต์เคส: testcases/HammerBand_Seat_Testcases.csv
+	ขั้นตอนกลาง: keywords/ticket/hammerkeywords.robot
+
+	ก่อนรัน
+	1. เปิด Chrome 2 จอ แล้ว login ทั้ง 2 จอ (กด เข้าสู่ระบบ > ดำเนินการต่อด้วย Google)
+	   port 9222 = tanapat.khrt@gmail.com (email2)
+	   port 9223 = superpeet9@gmail.com (email)  ต้องกดยืนยันบนมือถือ
+
+	& "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\RobotChromeprofile_0"
+
+	& "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9223 --user-data-dir="C:\RobotChromeprofile_1"
+
+	2. ดูให้มุมขวาบนเป็นรูปคน ไม่ใช่ปุ่ม เข้าสู่ระบบ
+	3. ห้ามปิด Chrome ทั้ง 2 จอระหว่างรัน
+
+	รัน (อยู่ที่ Path testcases/parallel)
+
+	cd testcases/parallel
+
+	TC07 เลือกโซน / เลือกที่นั่ง / ไซส์เสื้อ  (22 เคส ประมาณ 20 นาที ไม่จ่ายเงิน ใช้ 9222 + 9223)
+	python -m robot TC07_HammerBand_Seat.robot
+
+	TC06 ซื้อบัตรจริง  (จ่ายเงินจริง ใช้ที่นั่ง VIP1 เคสละ 1 ที่ คืนเองไม่ได้ ใช้ 9222)
+	python -m robot TC06_HammerBand.robot
+
+	รันเฉพาะเคส
+	python -m robot --test "HB030*" TC06_HammerBand.robot        (จ่าย QR)
+	python -m robot --test "HB031*" TC06_HammerBand.robot        (จ่ายบัตรเครดิต)
+	python -m robot --test "HB019*" TC07_HammerBand_Seat.robot   (2 บัญชีแย่งที่นั่ง)
+
+	รันเฉพาะเคสที่พังรอบก่อน
+	python -m robot --rerunfailed output.xml TC07_HammerBand_Seat.robot
+
+	วิธีจ่ายเงินในเทสต์ (Xendit)
+	- QR: กดลิงก์ "จำลองว่าชำระเงินแล้ว" > Simulate Payment > กลับหน้า QR คลิกหน้าเว็บ รอขึ้น ชำระเงินสำเร็จ
+	- บัตรเครดิต: จำลองสถานการณ์ > 3DS Challenge (กรอกบัตร 4000 0000 0000 2503 12/99 123 ให้)
+	  > กรอกชื่อ นามสกุล อีเมล เบอร์ > ชำระเงิน > OTP 1234 > SUBMIT
+
+	ที่นั่งค้าง
+	- ที่นั่งถูกจองตั้งแต่กด ชำระเงิน ในหน้าเลือกที่นั่ง
+	- ยกเลิกได้ทางเดียว คือกด ยกเลิกคำสั่งซื้อ ในหน้าเลือกช่องทางชำระเงินหรือหน้าจ่ายเงิน
+	- ออกจากหน้ากรอกข้อมูลเฉย ๆ ที่นั่งจะค้าง และไปรวมกับคำสั่งซื้อครั้งหน้า
+	- เทสต์ล้างให้เองตอนเริ่มเคสและตอนจบเคส ถ้ายังค้าง ให้ไปยกเลิกเองตามข้อบน
+
+	ถ้าพัง
+	- หน้าเว็บขึ้น 502 Bad Gateway หรือ Network Error = เว็บ UAT ล่ม รอสักพักแล้วรันใหม่
+	- หน้าเลือกโซนค้าง Loading... = login หมดอายุ ให้ login ใหม่
+	- HB017 พัง = ที่นั่ง W9 ถูกคืนแล้ว ให้แก้ ${PAID_SEAT} ใน TC07_HammerBand_Seat.robot เป็นที่นั่งที่จ่ายแล้ว
+
+	AI Report ใช้ได้เหมือนข้อ 3
+	python ../ai_test_report.py --output-xml output.xml --report ai_report.html

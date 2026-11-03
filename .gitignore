@@ -1,0 +1,28 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Robot / pabot results
+output.xml
+log.html
+report.html
+ai_report.html
+*.log
+*.out
+pabot_results/
+.pabotsuitenames
+selenium-screenshot-*.png
+results/
+
+# ไฟล์ที่เทสต์สร้างระหว่างรัน
+price_log.txt
+Ticket_name_log.txt
+keywords/ticket/QRpic/
+
+# ข้อมูล login จริง (ใช้ resources/testdata.example.yaml เป็นแบบ)
+resources/testdata.yaml
+
+# Editor / tools
+.vscode/
+.kiro/

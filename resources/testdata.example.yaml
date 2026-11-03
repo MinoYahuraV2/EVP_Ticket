@@ -1,0 +1,9 @@
+# คัดลอกไฟล์นี้เป็น testdata.yaml แล้วใส่บัญชีจริง (testdata.yaml ไม่ถูกอัปขึ้น Git)
+email: your-account-1@gmail.com
+valid_password: your-password-1
+email2: your-account-2@gmail.com
+valid_password2: your-password-2
+invalid_password: wrong-password
+invalid_email: wrong@email.com
+name: testname
+lastname: testlastname
